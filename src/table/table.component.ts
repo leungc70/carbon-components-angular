@@ -306,18 +306,18 @@ import { getScrollbarWidth } from "../common/utils";
 						</td>
 					</ng-container>
 				</tr>
-				<tr
+        <ng-container *ngFor="let expandRow of firstExpandedDataInRow(row);">
+        <tr
 				*ngIf="model.rowsExpanded[i]"
 				class="bx--expandable-row-v2"
 				[attr.data-child-row]="(model.rowsExpanded[i] ? 'true' : null)">
-					<td [attr.colspan]="model.data.length + 2">
-						<ng-container *ngIf="!firstExpandedTemplateInRow(row)">{{firstExpandedDataInRow(row)}}</ng-container>
-						<ng-template
-							[ngTemplateOutlet]="firstExpandedTemplateInRow(row)"
-							[ngTemplateOutletContext]="{data: firstExpandedDataInRow(row)}">
-						</ng-template>
-					</td>
-				</tr>
+            <ng-container *ngIf="!firstExpandedTemplateInRow(row)">{{firstExpandedDataInRow(row)}}</ng-container>
+            <ng-template
+                  [ngTemplateOutlet]="firstExpandedTemplateInRow(row)" [ngTemplateOutletContext]="{data: expandRow}">
+
+            </ng-template>
+        </tr>
+        </ng-container>
 			</ng-container>
 		</tbody>
 		<tfoot>

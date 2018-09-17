@@ -3,7 +3,8 @@ import {
 	ApplicationRef,
 	Input,
 	Output,
-	EventEmitter
+	EventEmitter,
+  TemplateRef
 } from "@angular/core";
 import { Subscription, fromEvent } from "rxjs";
 
@@ -306,21 +307,56 @@ import { getScrollbarWidth } from "../common/utils";
 						</td>
 					</ng-container>
 				</tr>
-        <ng-container *ngFor="let expandRow of firstExpandedDataInRow(row);">
-        <tr
+        <ng-template #recursive let-expandableRows>
+        <ng-container *ngFor="let expandRow of expandableRows;">
+
+					
+
+
+        <tr 
 				*ngIf="model.rowsExpanded[i]"
 				class="bx--expandable-row-v2"
-				[attr.data-child-row]="(model.rowsExpanded[i] ? 'true' : null)">
+        [attr.data-parent-row]="(model.rowsExpanded[i] ? 'true' : null)"
+				[attr.data-child-row]="(model.rowsExpanded[i] ? 'true' : null)"
+        [ngClass]="{
+						selected: model.rowsSelected[i],
+						'bx--parent-row-v2': model.isRowExpandable(i),
+						'bx--expandable-row-v2': model.rowsExpanded[i],
+						'tbody_row--selectable': enableSingleSelect,
+						'tbody_row--success': !model.rowsSelected[i] && model.rowsContext[i] === 'success',
+						'tbody_row--warning': !model.rowsSelected[i] && model.rowsContext[i] === 'warning',
+						'tbody_row--info': !model.rowsSelected[i] && model.rowsContext[i] === 'info',
+						'tbody_row--error': !model.rowsSelected[i] && model.rowsContext[i] === 'error'
+					}">
+<td
+					*ngIf="expandRow.children && expandRow.children.length"
+					class="bx--table-expand-v2"
+					[attr.data-previous-value]="(model.rowsExpanded[i] ? 'collapsed' : null)">
+						<button
+						*ngIf="model.isRowExpandable(i)"
+						(click)="model.expandRow(i, !model.rowsExpanded[i])"
+						class="bx--table-expand-v2__button">
+							<svg class="bx--table-expand-v2__svg" width="7" height="12" viewBox="0 0 7 12">
+								<path fill-rule="nonzero" d="M5.569 5.994L0 .726.687 0l6.336 5.994-6.335 6.002L0 11.27z" />
+							</svg>
+						</button>
+					</td>
+        <td *ngIf="!(expandRow.children && expandRow.children.length)"></td>
             <ng-container *ngIf="!firstExpandedTemplateInRow(row)">{{firstExpandedDataInRow(row)}}</ng-container>
             <ng-template
                   [ngTemplateOutlet]="firstExpandedTemplateInRow(row)" [ngTemplateOutletContext]="{data: expandRow}">
-
             </ng-template>
         </tr>
+            <ng-container *ngTemplateOutlet="recursive; context:{ $implicit: expandRow.children }"></ng-container>
         </ng-container>
-			</ng-container>
+        </ng-template>
+        <ng-container *ngTemplateOutlet="recursive; context:{ $implicit: firstExpandedDataInRow(row) }"></ng-container>
+      </ng-container>
 		</tbody>
 		<tfoot>
+        <ng-template
+            [ngTemplateOutlet]="footerTemplate">
+        </ng-template>
 			<tr *ngIf="this.model.isLoading">
 				<td class="table_loading-indicator">
 					<ibm-static-icon icon="loading_rows" size="lg"></ibm-static-icon>
@@ -452,6 +488,8 @@ export class Table {
 	 * @memberof Table
 	 */
 	@Input() striped = true;
+
+  @Input() footerTemplate: TemplateRef<any>;
 
 	/**
 	 * Emits an index of the column that wants to be sorted.

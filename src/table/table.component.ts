@@ -307,48 +307,44 @@ import { getScrollbarWidth } from "../common/utils";
 						</td>
 					</ng-container>
 				</tr>
-        <ng-template #recursive let-expandableRows>
-        <ng-container *ngFor="let expandRow of expandableRows;">
 
-					
-
-
-        <tr 
-				*ngIf="model.rowsExpanded[i]"
-				class="bx--expandable-row-v2"
-        [attr.data-parent-row]="(model.rowsExpanded[i] ? 'true' : null)"
-				[attr.data-child-row]="(model.rowsExpanded[i] ? 'true' : null)"
-        [ngClass]="{
-						selected: model.rowsSelected[i],
-						'bx--parent-row-v2': model.isRowExpandable(i),
-						'bx--expandable-row-v2': model.rowsExpanded[i],
-						'tbody_row--selectable': enableSingleSelect,
-						'tbody_row--success': !model.rowsSelected[i] && model.rowsContext[i] === 'success',
-						'tbody_row--warning': !model.rowsSelected[i] && model.rowsContext[i] === 'warning',
-						'tbody_row--info': !model.rowsSelected[i] && model.rowsContext[i] === 'info',
-						'tbody_row--error': !model.rowsSelected[i] && model.rowsContext[i] === 'error'
-					}">
-<td
-					*ngIf="expandRow.children && expandRow.children.length"
-					class="bx--table-expand-v2"
-					[attr.data-previous-value]="(model.rowsExpanded[i] ? 'collapsed' : null)">
-						<button
-						*ngIf="model.isRowExpandable(i)"
-						(click)="model.expandRow(i, !model.rowsExpanded[i])"
-						class="bx--table-expand-v2__button">
-							<svg class="bx--table-expand-v2__svg" width="7" height="12" viewBox="0 0 7 12">
-								<path fill-rule="nonzero" d="M5.569 5.994L0 .726.687 0l6.336 5.994-6.335 6.002L0 11.27z" />
-							</svg>
-						</button>
-					</td>
-        <td *ngIf="!(expandRow.children && expandRow.children.length)"></td>
-            <ng-container *ngIf="!firstExpandedTemplateInRow(row)">{{firstExpandedDataInRow(row)}}</ng-container>
-            <ng-template
-                  [ngTemplateOutlet]="firstExpandedTemplateInRow(row)" [ngTemplateOutletContext]="{data: expandRow}">
-            </ng-template>
-        </tr>
-            <ng-container *ngTemplateOutlet="recursive; context:{ $implicit: expandRow.children }"></ng-container>
-        </ng-container>
+        <ng-template #recursive let-expandableRows let-data="data">
+					<ng-container *ngFor="let expandRow of expandableRows;">
+						<tr
+							*ngIf="(expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true"
+							class="bx--expandable-row-v2"
+							[attr.data-parent-row]="((expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true ? 'true' : null)"
+							[attr.data-child-row]="((expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true ? 'true' : null)"
+							[ngClass]="{
+									selected: model.rowsSelected[i],
+									'bx--parent-row-v2': expandRow.children && expandRow.children.length,
+									'bx--expandable-row-v2': (expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true,
+									'tbody_row--selectable': enableSingleSelect,
+									'tbody_row--success': !model.rowsSelected[i] && model.rowsContext[i] === 'success',
+									'tbody_row--warning': !model.rowsSelected[i] && model.rowsContext[i] === 'warning',
+									'tbody_row--error': !model.rowsSelected[i] && model.rowsContext[i] === 'error'
+							}">
+							<td
+								*ngIf="expandRow.children && expandRow.children.length"
+								class="bx--table-expand-v2"
+								[attr.data-previous-value]="expandRow.expanded ? 'collapsed' : null">
+									<button
+										*ngIf="expandRow.children && expandRow.children.length"
+										(click)="expandRecursive(expandRow, !expandRow.expanded)"
+										class="bx--table-expand-v2__button">
+										<svg class="bx--table-expand-v2__svg" width="7" height="12" viewBox="0 0 7 12">
+											<path fill-rule="nonzero" d="M5.569 5.994L0 .726.687 0l6.336 5.994-6.335 6.002L0 11.27z" />
+										</svg>
+									</button>
+							</td>
+							<td *ngIf="!(expandRow.children && expandRow.children.length)"></td>
+							<ng-container *ngIf="!firstExpandedTemplateInRow(row)">{{firstExpandedDataInRow(row)}}</ng-container>
+							<ng-template
+										[ngTemplateOutlet]="firstExpandedTemplateInRow(row)" [ngTemplateOutletContext]="{data: expandRow}">
+							</ng-template>
+						</tr>
+					<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: expandRow.children, data: expandRow }"></ng-container>
+					</ng-container>
         </ng-template>
         <ng-container *ngTemplateOutlet="recursive; context:{ $implicit: firstExpandedDataInRow(row) }"></ng-container>
       </ng-container>
@@ -745,5 +741,16 @@ export class Table {
 	scrollToTop(event) {
 		event.target.parentElement.parentElement.parentElement.parentElement.children[1].scrollTop = 0;
 		this.model.isEnd = false;
+	}
+	
+	expandRecursive(row, value) {
+		if(row) {
+			row.expanded = value;
+			if(value === false && row.children) {
+				for(let children of row.children) {
+					this.expandRecursive(children, value);		
+				}
+			}
+		}
 	}
 }

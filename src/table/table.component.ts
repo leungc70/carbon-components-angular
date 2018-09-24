@@ -311,17 +311,18 @@ import { getScrollbarWidth } from "../common/utils";
         <ng-template #recursive let-expandableRows let-data="data">
 					<ng-container *ngFor="let expandRow of expandableRows;">
 						<tr
-							*ngIf="(expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true"
+							*ngIf="(expandRow.parent.data && expandRow.parent.data.expanded === true) || expandRow.parent.expanded === true"
 							class="bx--expandable-row-v2"
-							[attr.data-parent-row]="((expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true ? 'true' : null)"
-							[attr.data-child-row]="((expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true ? 'true' : null)"
+							[attr.data-parent-row]="((expandRow.parent.data && expandRow.parent.data.expanded === true) || expandRow.parent.expanded === true ? 'true' : null)"
+							[attr.data-child-row]="((expandRow.parent.data && expandRow.parent.data.expanded === true) || expandRow.parent.expanded === true ? 'true' : null)"
 							[ngClass]="{
 									selected: model.rowsSelected[i],
 									'bx--parent-row-v2': expandRow.children && expandRow.children.length,
-									'bx--expandable-row-v2': (expandRow.parentIndex !== null && model.rowsExpanded[expandRow.parentIndex]) || expandRow.parent.expanded === true,
+									'bx--expandable-row-v2': (expandRow.parent.data && expandRow.parent.data.expanded === true) || expandRow.parent.expanded === true,
 									'tbody_row--selectable': enableSingleSelect,
 									'tbody_row--success': !model.rowsSelected[i] && model.rowsContext[i] === 'success',
 									'tbody_row--warning': !model.rowsSelected[i] && model.rowsContext[i] === 'warning',
+									'tbody_row--info': !model.rowsSelected[i] && model.rowsContext[i] === 'info',
 									'tbody_row--error': !model.rowsSelected[i] && model.rowsContext[i] === 'error'
 							}">
 							<td

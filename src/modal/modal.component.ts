@@ -1,11 +1,12 @@
 import { ModalService } from "./modal.service";
 import {
+	AfterViewInit,
 	Component,
 	EventEmitter,
 	HostListener,
 	Input,
-	OnInit,
 	OnDestroy,
+	OnInit,
 	Output,
 	ElementRef,
 	ViewChild
@@ -23,7 +24,7 @@ import { cycleTabs } from "./../common/tab.service";
 /**
  * Component to create modals for presenting content.
  *
- * Using a modal in your application requires `n-modal-placeholder` which would generally be
+ * Using a modal in your application requires `ibm-modal-placeholder` which would generally be
  * placed near the end of your app component template (app.component.ts or app.component.html) as:
  *
  * ```html
@@ -48,7 +49,7 @@ import { cycleTabs } from "./../common/tab.service";
  * 			</button>
  * 			{{modalText}}
  * 			</section>
- * 			<ibm-modal-footer><button class="btn--primary cancel-button" (click)="closeModal()">Close</button></ibm-modal-footer>
+ * 			<ibm-modal-footer><button ibmButton="primary" (click)="closeModal()">Close</button></ibm-modal-footer>
  * 		</ibm-modal>`,
  * 	styleUrls: ["./sample-modal.component.scss"]
  * })
@@ -67,7 +68,7 @@ import { cycleTabs } from "./../common/tab.service";
  * \@Component({
  *  selector: "app-modal-demo",
  *  template: `
- *   <button class="btn--primary" (click)="openModal('drill')">Drill-down modal</button>
+ *   <button ibmButton="primary" (click)="openModal('drill')">Drill-down modal</button>
  *   <ibm-modal-placeholder></ibm-modal-placeholder>`
  * })
  * export class ModalDemo {
@@ -85,7 +86,7 @@ import { cycleTabs } from "./../common/tab.service";
 @Component({
 	selector: "ibm-modal",
 	template: `
-		<ibm-overlay (overlaySelect)="overlaySelected.emit()">
+		<ibm-overlay [modalType]="modalType" (overlaySelect)="overlaySelected.emit()">
 			<div
 				class="bx--modal-container"
 				[@modalState]="modalState"
@@ -110,7 +111,7 @@ import { cycleTabs } from "./../common/tab.service";
 		])
 	]
 })
-export class ModalComponent implements OnInit, OnDestroy {
+export class ModalComponent implements AfterViewInit, OnInit, OnDestroy {
 	/**
 	 * Size of the modal to display.
 	 * (size `"default"` is being deprecated as of neutrino v1.2.0, please use `"md"` instead)
@@ -120,7 +121,7 @@ export class ModalComponent implements OnInit, OnDestroy {
 	@Input() size = "default";
 	/**
 	 * Classification of the modal.
-	 * @type {"default" | "warning" | "error"}
+	 * @type {"default" | "danger"}
 	 * @memberof ModalComponent
 	 */
 	@Input() modalType = "default";
@@ -149,6 +150,12 @@ export class ModalComponent implements OnInit, OnDestroy {
 	modalState = "out";
 
 	/**
+	 * An element should have 'data-modal-primary-focus' as an attribute to receive initial focus within the `Modal` component.
+	 * @memberof ModalComponent
+	 */
+	selectorPrimaryFocus = "[modal-primary-focus]";
+
+	/**
 	 * Creates an instance of `ModalComponent`.
 	 * @param {ModalService} modalService
 	 * @memberof ModalComponent
@@ -156,11 +163,23 @@ export class ModalComponent implements OnInit, OnDestroy {
 	constructor(public modalService: ModalService) {}
 
 	/**
-	 * Set document focus to be on the modal component when it is initialized.
+	 * Set modalState on the modal component when it is initialized.
 	 * @memberof ModalComponent
 	 */
 	ngOnInit() {
 		this.modalState = "in";
+	}
+
+	/**
+	 * Set document focus to be on the modal component after it is initialized.
+	 * @memberof ModalComponent
+	 */
+	ngAfterViewInit() {
+		const primaryFocusElement = this.modal.nativeElement.querySelector(this.selectorPrimaryFocus);
+		if (primaryFocusElement && primaryFocusElement.focus) {
+			primaryFocusElement.focus();
+			return;
+		}
 		this.modal.nativeElement.focus();
 	}
 

@@ -17,7 +17,8 @@ import {
 	merge
 } from "rxjs";
 import { throttleTime } from "rxjs/operators";
-import position from "../utils/position";
+// the AbsolutePosition is required to import the declaration correctly
+import position, { AbsolutePosition } from "./../utils/position";
 import { cycleTabs } from "./../common/tab.service";
 import { DialogConfig } from "./dialog-config.interface";
 
@@ -241,6 +242,7 @@ export class Dialog implements OnInit, AfterViewInit, OnDestroy {
 	@HostListener("keydown", ["$event"])
 	escapeClose(event: KeyboardEvent) {
 		switch (event.key) {
+			case "Esc": // IE specific value
 			case "Escape": {
 				event.stopImmediatePropagation();
 				this.doClose();

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ElementRef } from "@angular/core";
 
 /**
  * The OverFlow menu component encapsulates the OverFlowMenu directive, and the menu iconography into one convienent component
@@ -18,9 +18,13 @@ import { Component } from "@angular/core";
 		<div
 			[ibmOverflowMenu]="options"
 			[appendToBody]="true"
-			placement="bottom"
+			[ngClass]="{'bx--overflow-menu--open': open === true}"
+			attr.aria-label="{{'OVERFLOW_MENU.OVERFLOW' | translate}}"
 			class="bx--overflow-menu"
-			style="display: block;">
+			role="button"
+			placement="bottom"
+			style="display: block;"
+			tabindex="0">
 			<svg class="bx--overflow-menu__icon" width="3" height="15" viewBox="0 0 3 15">
 				<g fill-rule="evenodd">
 					<circle cx="1.5" cy="1.5" r="1.5" />
@@ -32,6 +36,20 @@ import { Component } from "@angular/core";
 		<ng-template #options>
 			<ng-content></ng-content>
 		</ng-template>
-	`
+	`,
+	styles: [`
+		.bx--overflow-menu--open {
+			opacity: 1
+		}
+	`]
 })
-export class OverflowMenu {}
+export class OverflowMenu {
+	constructor(private elementRef: ElementRef) {}
+
+	get open() {
+		if (this.elementRef.nativeElement.children[0].getAttribute("aria-expanded") === "true") {
+			return true;
+		}
+		return false;
+	}
+}

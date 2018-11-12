@@ -53,12 +53,12 @@ import { Tab } from "./tab.component";
 						'bx--tabs__nav-item--selected': tab.active
 					}"
 					class="bx--tabs__nav-item"
-					role="presentation">
+					role="presentation"
+					(click)="selectTab(tabref, tab, i)">
 					<a
 						[attr.aria-selected]="tab.active"
 						[attr.tabindex]="(tab.active?0:-1)"
 						[attr.aria-controls]="tab.id"
-						(click)="selectTab(tabref, tab, i)"
 						(focus)="onTabFocus(tabref, i)"
 						draggable="false"
 						id="{{tab.id}}-header"
@@ -226,10 +226,10 @@ export class TabHeaders implements AfterViewInit, AfterContentInit {
 
 	/**
 	 * Determines which `Tab` is initially selected.
-	 * @private
+	 * @protected
 	 * @memberof Tabs
 	 */
-	private setFirstTab() {
+	protected setFirstTab() {
 		setTimeout(() => {
 			let firstTab = this.tabs.find(tab => tab.active);
 			if (!firstTab && this.tabs.first) {

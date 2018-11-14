@@ -272,12 +272,6 @@ import { I18n } from "./../i18n/i18n.module";
 						</div>
 					</th>
 				</ng-container>
-				<th [ngStyle]="{'width': scrollbarWidth + 'px', 'padding': 0, 'border': 0}">
-					<!--
-						Scrollbar pushes body to the left so this header column is added to push
-						the title bar the same amount and keep the header and body columns aligned.
-					-->
-				</th>
 			</tr>
 		</thead>
 		<tbody
